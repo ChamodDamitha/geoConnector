@@ -4,9 +4,7 @@ package com.chamod.rest;
 import org.json.simple.JSONObject;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 
 /**
  * Created by chamod on 7/29/17.
@@ -15,6 +13,8 @@ import java.util.ArrayList;
 @Path("/geo")
 public class GeoConnectorService {
     private GeoDetector geoDetector;
+
+    int[] arr = new int[23];
 
     public GeoConnectorService() {
         this.geoDetector = new InMemoryGeoDetector();
@@ -46,11 +46,12 @@ public class GeoConnectorService {
     @GET
     @Path("/geoCoordinates")
     @Produces("text/json")
-    public Response getGeoCoordinates(){
-        GeoCoordinate coordinate = geoDetector.getCoordinate(12, 23);
+    public Response getGeoCoordinates(@QueryParam("requestUserId") int requestUserId,
+                                      @QueryParam("respondUserId") int respondUserId){
+        GeoCoordinate coordinate = geoDetector.getCoordinate(requestUserId, respondUserId);
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("userId", 23);
+        jsonObject.put("userId", respondUserId);
         if(coordinate != null) {
             jsonObject.put("available", true);
             jsonObject.put("latitude", coordinate.getLatitude());
@@ -58,6 +59,7 @@ public class GeoConnectorService {
             jsonObject.put("distance", geoDetector.getPathDistance(0, 0,
                     coordinate.getLatitude(), coordinate.getLongitude()));
             jsonObject.put("timestamp", coordinate.getTimestamp());
+            jsonObject.put("arr[0]", arr[0]);
         }
         else{
             jsonObject.put("available", false);
@@ -69,9 +71,25 @@ public class GeoConnectorService {
 
     @POST
     @Path("/geoCoordinates")
-    public Response setCoordinates(){
+    @Produces("text/json")
+    public Response setCoordinates(@QueryParam("requestUserId") int requestUserId,
+                                   @QueryParam("respondUserId") int respondUserId,
+                                   @QueryParam("latitude") double latitude,
+                                   @QueryParam("longitude") double longitude){
 
-        return Response.status(200).build();
+        geoDetector.setCoordinate(requestUserId, respondUserId, latitude, longitude);
+
+        GeoCoordinate coordinate = geoDetector.getCoordinate(requestUserId, respondUserId);
+
+        arr[0] = 234;
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("success", true);
+        jsonObject.put("latitude", coordinate.getLatitude());
+        jsonObject.put("longitude", coordinate.getLongitude());
+        jsonObject.put("arr[0]", arr[0]);
+
+
+        return Response.status(200).entity(jsonObject.toJSONString()).build();
     }
 
 
