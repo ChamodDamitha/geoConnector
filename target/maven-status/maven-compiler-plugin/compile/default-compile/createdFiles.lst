@@ -1,2 +1,6 @@
 com/chamod/rest/RESTfulHelloWorld.class
+com/chamod/rest/CoordinateMatrix.class
+com/chamod/rest/GeoCoordinate.class
 com/chamod/rest/GeoConnectorService.class
+com/chamod/rest/InMemoryGeoDetector.class
+com/chamod/rest/GeoDetector.class
