@@ -14,10 +14,8 @@ import javax.ws.rs.core.Response;
 public class GeoConnectorService {
     private GeoDetector geoDetector;
 
-    int[] arr = new int[23];
-
     public GeoConnectorService() {
-        this.geoDetector = new InMemoryGeoDetector();
+        this.geoDetector = new DBGeoDetector();
     }
 
     @GET
@@ -59,7 +57,6 @@ public class GeoConnectorService {
             jsonObject.put("distance", geoDetector.getPathDistance(0, 0,
                     coordinate.getLatitude(), coordinate.getLongitude()));
             jsonObject.put("timestamp", coordinate.getTimestamp());
-            jsonObject.put("arr[0]", arr[0]);
         }
         else{
             jsonObject.put("available", false);
@@ -81,13 +78,10 @@ public class GeoConnectorService {
 
         GeoCoordinate coordinate = geoDetector.getCoordinate(requestUserId, respondUserId);
 
-        arr[0] = 234;
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("success", true);
         jsonObject.put("latitude", coordinate.getLatitude());
         jsonObject.put("longitude", coordinate.getLongitude());
-        jsonObject.put("arr[0]", arr[0]);
-
 
         return Response.status(200).entity(jsonObject.toJSONString()).build();
     }
