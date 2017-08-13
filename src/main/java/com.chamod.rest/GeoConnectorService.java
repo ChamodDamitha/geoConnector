@@ -25,18 +25,18 @@ public class GeoConnectorService {
     @Path("/geoCoordinates")
     @Produces("text/json")
     public Response getGeoCoordinates(@QueryParam("requestUserEmail") String requestUserEmail,
-                                      @QueryParam("respondUserEmail") String respondUserEmail) {
+                                      @QueryParam("responseUserEmail") String responseUserEmail) {
 
         JSONObject jsonObject = new JSONObject();
 
-        boolean areFirends = geoDetector.areFriends(requestUserEmail, respondUserEmail);
+        boolean areFirends = geoDetector.areFriends(requestUserEmail, responseUserEmail);
         if (!areFirends) {
             jsonObject.put("available", false);
             jsonObject.put("msg", "Requested User is not a friend...!");
         } else {
-            GeoCoordinate coordinate = geoDetector.getCoordinate(respondUserEmail);
+            GeoCoordinate coordinate = geoDetector.getCoordinate(responseUserEmail);
 
-            jsonObject.put("userId", respondUserEmail);
+            jsonObject.put("email", responseUserEmail);
             if (coordinate != null) {
                 jsonObject.put("available", true);
                 jsonObject.put("latitude", coordinate.getLatitude());
