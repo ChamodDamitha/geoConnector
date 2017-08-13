@@ -62,4 +62,6 @@ public interface GeoDetector {
 
     ArrayList<User> getFriends(String userEmail);
 
+    boolean makeUser(String email, String name);
+
 }

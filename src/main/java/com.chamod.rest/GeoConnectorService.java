@@ -21,21 +21,19 @@ public class GeoConnectorService {
     }
 
 
-
     @GET
     @Path("/geoCoordinates")
     @Produces("text/json")
     public Response getGeoCoordinates(@QueryParam("requestUserEmail") String requestUserEmail,
-                                      @QueryParam("respondUserEmail") String respondUserEmail){
+                                      @QueryParam("respondUserEmail") String respondUserEmail) {
 
         JSONObject jsonObject = new JSONObject();
 
         boolean areFirends = geoDetector.areFriends(requestUserEmail, respondUserEmail);
-        if(!areFirends){
+        if (!areFirends) {
             jsonObject.put("available", false);
             jsonObject.put("msg", "Requested User is not a friend...!");
-        }
-        else {
+        } else {
             GeoCoordinate coordinate = geoDetector.getCoordinate(respondUserEmail);
 
             jsonObject.put("userId", respondUserEmail);
@@ -55,13 +53,12 @@ public class GeoConnectorService {
         return Response.status(200).entity(jsonObject.toJSONString()).build();
     }
 
-
     @POST
     @Path("/geoCoordinates")
     @Produces("text/json")
     public Response setGeoCoordinates(@QueryParam("userEmail") String userEmail,
                                       @QueryParam("latitude") double latitude,
-                                      @QueryParam("longitude") double longitude){
+                                      @QueryParam("longitude") double longitude) {
 
         geoDetector.setCoordinate(userEmail, latitude, longitude);
 
@@ -79,15 +76,14 @@ public class GeoConnectorService {
     @Path("/sendFriendRequest")
     @Produces("text/json")
     public Response sendFriendRequest(@QueryParam("requestUserEmail") String requestUserEmail,
-                                      @QueryParam("respondUserEmail") String respondUserEmail){
+                                      @QueryParam("respondUserEmail") String respondUserEmail) {
 
         JSONObject jsonObject = new JSONObject();
         boolean success = geoDetector.sendFriendRequest(requestUserEmail, respondUserEmail);
-        if (success){
+        if (success) {
             jsonObject.put("success", true);
             jsonObject.put("msg", "Friend request sent");
-        }
-        else{
+        } else {
             jsonObject.put("success", false);
             jsonObject.put("msg", "Friend request was not sent");
         }
@@ -99,15 +95,14 @@ public class GeoConnectorService {
     @Path("/acceptFriendRequest")
     @Produces("text/json")
     public Response acceptFriendRequest(@QueryParam("requestUserEmail") String requestUserEmail,
-                                      @QueryParam("respondUserEmail") String respondUserEmail){
+                                        @QueryParam("respondUserEmail") String respondUserEmail) {
 
         JSONObject jsonObject = new JSONObject();
         boolean success = geoDetector.acceptFriendRequest(requestUserEmail, respondUserEmail);
-        if (success){
+        if (success) {
             jsonObject.put("success", true);
             jsonObject.put("msg", "Friend request accepted");
-        }
-        else{
+        } else {
             jsonObject.put("success", false);
             jsonObject.put("msg", "Friend request was not accepted");
         }
@@ -118,13 +113,13 @@ public class GeoConnectorService {
     @GET
     @Path("/friendRequests")
     @Produces("text/json")
-    public Response getFriendRequests(@QueryParam("userEmail") String userEmail){
+    public Response getFriendRequests(@QueryParam("userEmail") String userEmail) {
 
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArrayFriends = new JSONArray();
 
         ArrayList<String> friendRequests = geoDetector.getFriendRequests(userEmail);
-        for (String email : friendRequests){
+        for (String email : friendRequests) {
             jsonArrayFriends.add(email);
         }
 
@@ -137,13 +132,13 @@ public class GeoConnectorService {
     @GET
     @Path("/friends")
     @Produces("text/json")
-    public Response getFriends(@QueryParam("userEmail") String userEmail){
+    public Response getFriends(@QueryParam("userEmail") String userEmail) {
 
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArrayFriends = new JSONArray();
 
         ArrayList<User> friends = geoDetector.getFriends(userEmail);
-        for (User u : friends){
+        for (User u : friends) {
             jsonArrayFriends.add(u.toJSON());
         }
 
@@ -153,8 +148,25 @@ public class GeoConnectorService {
         return Response.status(200).entity(jsonObject.toJSONString()).build();
     }
 
+    @POST
+    @Path("/users")
+    @Produces("text/json")
+    public Response makeUser(@QueryParam("email") String email, @QueryParam("name") String name) {
 
+        JSONObject jsonObject = new JSONObject();
 
+        boolean success = geoDetector.makeUser(email, name);
+
+        if (success) {
+            jsonObject.put("success", true);
+            jsonObject.put("msg", "User was created");
+        } else {
+            jsonObject.put("success", false);
+            jsonObject.put("msg", "User was not created");
+
+        }
+        return Response.status(200).entity(jsonObject.toJSONString()).build();
+    }
 
 
 }

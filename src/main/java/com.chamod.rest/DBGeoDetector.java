@@ -307,5 +307,42 @@ public class DBGeoDetector implements GeoDetector {
         }
         return friends;
     }
+
+    public boolean makeUser(String email, String name) {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+
+            String url = "jdbc:mysql://localhost/geodetector?user=root&password=root";
+            // Setup the connection with the DB
+            connect = DriverManager
+                    .getConnection(url);
+
+            // Statements allow to issue SQL queries to the database
+            statement = connect.createStatement();
+            // Result set get the result of the SQL query
+            resultSet = statement
+                    .executeQuery(String.format("select * from %s where email = '%s'",
+                            USERS_TABLE, email));
+
+            if (resultSet.next()) {
+                return false;
+            } else {
+                // PreparedStatements can use variables and are more efficient
+                preparedStatement = connect
+                        .prepareStatement("insert into " +
+                                "users(email, name) values (?, ?)");
+                preparedStatement.setString(1, email);
+                preparedStatement.setString(2, name);
+            }
+            preparedStatement.executeUpdate();
+            return true;
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
 
