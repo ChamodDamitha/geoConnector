@@ -203,6 +203,18 @@ public class DBGeoDetector implements GeoDetector {
                 connect = DriverManager
                         .getConnection(url);
 
+                // Statements allow to issue SQL queries to the database
+                statement = connect.createStatement();
+                // Result set get the result of the SQL query
+                resultSet = statement
+                        .executeQuery(String.format("select * from %s where " +
+                                        "requestUserEmail = '%s' and responseUserEmail = '%s' LIMIT 1;",
+                                FRIEND_REQUEST_TABLE, requestUserEmail, responseUserEmail));
+
+                if (resultSet.next()) {
+                    return false;
+                }
+
                 // PreparedStatements can use variables and are more efficient
                 preparedStatement = connect
                         .prepareStatement("insert into " +
@@ -222,29 +234,34 @@ public class DBGeoDetector implements GeoDetector {
     }
 
     public boolean acceptFriendRequest(String requestUserEmail, String responseUserEmail) {
-        makeFriends(requestUserEmail, responseUserEmail);
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
+        if (areFriends(requestUserEmail, responseUserEmail)) {
+            return false;
+        } else {
+            makeFriends(requestUserEmail, responseUserEmail);
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
 
-            String url = "jdbc:mysql://localhost/geodetector?user=root&password=root";
-            // Setup the connection with the DB
-            connect = DriverManager
-                    .getConnection(url);
+                String url = "jdbc:mysql://localhost/geodetector?user=root&password=root";
+                // Setup the connection with the DB
+                connect = DriverManager
+                        .getConnection(url);
 
-            // Statements allow to issue SQL queries to the database
-            statement = connect.createStatement();
-            // Result set get the result of the SQL query
-            statement.executeQuery(String.format("delete * from %s where " +
-                            "requestUserEmail = '%s' and responseUserEmail = '%s';",
-                    FRIEND_REQUEST_TABLE, requestUserEmail, responseUserEmail));
+                // PreparedStatements can use variables and are more efficient
+                preparedStatement = connect
+                        .prepareStatement("delete from friendrequests where " +
+                                "requestUserEmail = ? and responseUserEmail = ?;");
+                preparedStatement.setString(1, requestUserEmail);
+                preparedStatement.setString(2, responseUserEmail);
+                preparedStatement.execute();
 
-            return true;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+                return true;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return false;
         }
-        return false;
     }
 
     public ArrayList<String> getFriendRequests(String userEmail) {
@@ -291,7 +308,10 @@ public class DBGeoDetector implements GeoDetector {
             statement = connect.createStatement();
             // Result set get the result of the SQL query
             resultSet = statement
-                    .executeQuery(String.format("select * from %s JOIN users where email1 = '%s' or email2 = '%s' ;",
+                    .executeQuery(String.format("select users.name, users.email " +
+                                    "from users, friends where users.email " +
+                                    "in ( select email1  from friends where email2 = '%s' " +
+                                    "union select email2 from friends where email1 = '%s' );",
                             FRIENDS_TABLE, userEmail, userEmail));
 
             if (resultSet.next()) {

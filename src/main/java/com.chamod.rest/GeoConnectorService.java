@@ -76,10 +76,10 @@ public class GeoConnectorService {
     @Path("/sendFriendRequest")
     @Produces("text/json")
     public Response sendFriendRequest(@QueryParam("requestUserEmail") String requestUserEmail,
-                                      @QueryParam("respondUserEmail") String respondUserEmail) {
+                                      @QueryParam("responseUserEmail") String responseUserEmail) {
 
         JSONObject jsonObject = new JSONObject();
-        boolean success = geoDetector.sendFriendRequest(requestUserEmail, respondUserEmail);
+        boolean success = geoDetector.sendFriendRequest(requestUserEmail, responseUserEmail);
         if (success) {
             jsonObject.put("success", true);
             jsonObject.put("msg", "Friend request sent");
@@ -95,10 +95,10 @@ public class GeoConnectorService {
     @Path("/acceptFriendRequest")
     @Produces("text/json")
     public Response acceptFriendRequest(@QueryParam("requestUserEmail") String requestUserEmail,
-                                        @QueryParam("respondUserEmail") String respondUserEmail) {
+                                        @QueryParam("responseUserEmail") String responseUserEmail) {
 
         JSONObject jsonObject = new JSONObject();
-        boolean success = geoDetector.acceptFriendRequest(requestUserEmail, respondUserEmail);
+        boolean success = geoDetector.acceptFriendRequest(requestUserEmail, responseUserEmail);
         if (success) {
             jsonObject.put("success", true);
             jsonObject.put("msg", "Friend request accepted");
